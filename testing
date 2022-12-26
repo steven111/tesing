@@ -1,0 +1,87 @@
+<html>
+<head>
+<title>Green Screen Youtube Player</title>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+</head>
+<body>
+<!-- Input form for user to enter Youtube video links -->
+<form id="form">
+  <label for="video1">Video 1:</label><br>
+  <input type="text" id="video1" name="video1"><br>
+  <label for="video2">Video 2:</label><br>
+  <input type="text" id="video2" name="video2"><br>
+  <button type="submit">Update</button>
+</form>
+<!-- Divs to hold the two Youtube players -->
+<div id="player1"></div>
+<div id="player2"></div>
+<script>
+// Initialize Youtube API
+var tag = document.createElement('script');
+tag.src = "https://www.youtube.com/iframe_api";
+var firstScriptTag = document.getElementsByTagName('script')[0];
+firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+// Function to create the Youtube players
+function onYouTubeIframeAPIReady() {
+  // Create player for video 1
+  player1 = new YT.Player('player1', {
+    height: '360',
+    width: '640',
+    videoId: '',
+    events: {
+      'onReady': onPlayerReady
+    }
+  });
+
+  // Create player for video 2
+  player2 = new YT.Player('player2', {
+    height: '360',
+    width: '640',
+    videoId: '',
+    events: {
+      'onReady': onPlayerReady
+    }
+  });
+}
+
+// Function to play the videos when both players are ready
+function onPlayerReady(event) {
+  if (player1.getPlayerState() == YT.PlayerState.CUED && player2.getPlayerState() == YT.PlayerState.CUED) {
+    player1.playVideo();
+    player2.playVideo();
+  }
+}
+
+// Jquery to handle form submission and update the Youtube players
+$(document).ready(function() {
+  $('#form').submit(function(event) {
+    event.preventDefault();
+    var video1 = $('#video1').val();
+    var video2 = $('#video2').val();
+    player1.loadVideoById(video1);
+    player2.loadVideoById(video2);
+  });
+});
+
+// Jquery to remove the color green from every frame of the top Youtube player
+$(document).ready(function() {
+  setInterval(function() {
+    var frame = player1.getIframe();
+    var imgData = frame.getContext('2d').getImageData(0, 0, frame.width, frame.height);
+    for (var i = 0; i < imgData.data.length; i += 4) {
+      // Check if the pixel is green
+      if (imgData.data[i+1] > 200 && imgData.data[i+2] < 50) {
+        // Set the alpha value to 0 to remove the
+hi@nicevideo.ca
+pixels of they are near the color green
+
+imgData.data[i+3] = 0;
+}
+}
+frame.getContext('2d').putImageData(imgData, 0, 0);
+}, 1000/30); // update every 30th of a second
+});
+</script>
+</body>
+</html>
